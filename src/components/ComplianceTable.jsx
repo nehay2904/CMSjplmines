@@ -77,11 +77,17 @@ export default function ComplianceTable({
                   </td>
                 )}
                 {has('assignee') && (
-                  <td className="whitespace-nowrap px-4 py-3">
-                    {c.assignedTo ? (
-                      <span className="text-slate-700">{c.assignedTo.name}</span>
+                  <td className="px-4 py-3">
+                    {c.assignedTo?.length ? (
+                      <div className="flex flex-wrap gap-1">
+                        {c.assignedTo.map((u) => (
+                          <span key={u._id || u} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
+                            {u.name || u}
+                          </span>
+                        ))}
+                      </div>
                     ) : (
-                      <span className="text-slate-300">Unassigned</span>
+                      <span className="text-xs text-slate-300">Unassigned</span>
                     )}
                   </td>
                 )}
