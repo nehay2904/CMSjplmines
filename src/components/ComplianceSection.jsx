@@ -96,7 +96,7 @@ export default function ComplianceSection({ subCategory, title, subtitle, column
 
             <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
               <Detail label="Compliance ID" value={detail.complianceId} />
-              <Detail label="Mine" value={detail.mine?.name} />
+              <Detail label="Mines" value={(detail.mines || []).map((m) => m.name || m).join(', ')} />
               <Detail label="Act" value={detail.act} />
               <Detail label="Regulation ref." value={detail.regulationRef} />
               <Detail label="Form no." value={detail.formNo} />

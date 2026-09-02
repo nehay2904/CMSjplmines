@@ -36,12 +36,14 @@ export default function AssignTrack() {
   }, [load]);
 
   // users belonging to the compliance's mine (admins are global, always eligible)
-  const eligible = (c) =>
-    users.filter(
+  const eligible = (c) => {
+    const mineIds = (c.mines || []).map((m) => String(m._id || m));
+    return users.filter(
       (u) =>
         u.role !== 'admin' &&
-        String(u.mine?._id || u.mine) === String(c.mine?._id || c.mine)
+        mineIds.includes(String(u.mine?._id || u.mine))
     );
+  };
 
   const openAssign = (c) => {
     setAssign(c);
@@ -129,7 +131,7 @@ export default function AssignTrack() {
             <div className="rounded-lg bg-slate-50 p-3 text-sm">
               <p className="font-medium text-slate-900">{assign.title}</p>
               <p className="text-slate-500">
-                {assign.category} · {assign.mine?.name}
+                {assign.category} · {(assign.mines || []).map((m) => m.name || m).join(', ')}
               </p>
             </div>
             <Field label="Assign to" required>

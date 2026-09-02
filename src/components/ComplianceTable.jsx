@@ -63,8 +63,17 @@ export default function ComplianceTable({
                   </td>
                 )}
                 {has('mine') && (
-                  <td className="whitespace-nowrap px-4 py-3 text-slate-600">
-                    {c.mine?.name || '—'}
+                  <td className="px-4 py-3 text-slate-600">
+                    {c.mines?.length
+                      ? c.mines.map((m) => (
+                          <span
+                            key={m._id || m}
+                            className="mr-1 inline-block rounded-full bg-slate-100 px-2 py-0.5 text-xs"
+                          >
+                            {m.name || m}
+                          </span>
+                        ))
+                      : '—'}
                   </td>
                 )}
                 {has('assignee') && (

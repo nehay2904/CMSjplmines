@@ -32,7 +32,7 @@ const STATUSES = ['Pending', 'Upcoming', 'Due This Month', 'Overdue', 'Completed
 
 const blank = {
   complianceId: '',
-  mine: '',
+  mines: [],
   category: 'DGMS',
   subCategory: '',
   title: '',
@@ -78,7 +78,7 @@ export default function Compliances() {
   }, [load]);
 
   const openNew = () => {
-    setForm({ ...blank, mine: mines[0]?._id || '' });
+    setForm({ ...blank, mines: [] });
     setModal('new');
   };
 
@@ -86,7 +86,7 @@ export default function Compliances() {
     setForm({
       ...blank,
       ...c,
-      mine: c.mine?._id || c.mine || '',
+      mines: (c.mines || []).map((m) => m._id || m),
       dueDate: c.dueDate ? c.dueDate.slice(0, 10) : '',
       alertDate: c.alertDate ? c.alertDate.slice(0, 10) : '',
     });
@@ -231,20 +231,25 @@ export default function Compliances() {
                 className={inputCls}
               />
             </Field>
-            <Field label="Mine" required>
-              <select
-                required
-                value={form.mine}
-                onChange={(e) => setForm({ ...form, mine: e.target.value })}
-                className={inputCls}
-              >
-                <option value="">Select mine</option>
+            <Field label="Applies to (mines)" required>
+              <div className="flex flex-wrap gap-3 rounded-lg border border-slate-300 px-3 py-2">
                 {mines.map((m) => (
-                  <option key={m._id} value={m._id}>
+                  <label key={m._id} className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.mines.includes(m._id)}
+                      onChange={(e) => {
+                        const updated = e.target.checked
+                          ? [...form.mines, m._id]
+                          : form.mines.filter((id) => id !== m._id);
+                        setForm({ ...form, mines: updated });
+                      }}
+                      className="rounded border-slate-300 text-indigo-600"
+                    />
                     {m.name}
-                  </option>
+                  </label>
                 ))}
-              </select>
+              </div>
             </Field>
           </div>
 
