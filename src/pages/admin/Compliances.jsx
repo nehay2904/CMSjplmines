@@ -29,7 +29,7 @@ const CATEGORIES = [
   'State Mining Department',
 ];
 const SUBTYPES = ['Notice', 'Return', 'Record'];
-const STATUSES = ['Pending', 'Upcoming', 'Due This Month', 'Overdue', 'Completed'];
+const STATUSES = ['Pending', 'Upcoming', 'Overdue', 'Completed'];
 
 const BLANK_FORM = {
   complianceId: '',

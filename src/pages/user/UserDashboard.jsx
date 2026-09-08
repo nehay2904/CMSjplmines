@@ -14,8 +14,7 @@ export default function UserDashboard() {
   useEffect(() => {
     Promise.all([
       API.get('/compliances/stats'),
-      API.get('/compliances', { params: { status: 'Overdue' } }),
-      API.get('/compliances', { params: { status: 'Due This Month' } }),
+      API.get('/compliances', { params: { status: 'Overdue' } })
     ])
       .then(([s, overdue, due]) => {
         setStats(s.data.stats || {});
@@ -35,12 +34,7 @@ export default function UserDashboard() {
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Assigned to me" value={stats.total || 0} icon={ClipboardList} accent="indigo" />
-        <StatCard
-          label="Due This Month"
-          value={stats['Due This Month'] || 0}
-          icon={CalendarClock}
-          accent="amber"
-        />
+      
         <StatCard label="Overdue" value={stats.Overdue || 0} icon={AlertTriangle} accent="rose" />
         <StatCard label="Completed" value={stats.Completed || 0} icon={CheckCircle2} accent="emerald" />
       </div>

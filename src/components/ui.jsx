@@ -4,7 +4,6 @@ import { X } from 'lucide-react';
 export const STATUS_STYLES = {
   Pending: 'bg-slate-100 text-slate-700 ring-slate-200',
   Upcoming: 'bg-sky-50 text-sky-700 ring-sky-200',
-  'Due This Month': 'bg-amber-50 text-amber-700 ring-amber-200',
   Overdue: 'bg-rose-50 text-rose-700 ring-rose-200',
   Completed: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
 };

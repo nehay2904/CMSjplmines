@@ -57,7 +57,7 @@ export default function ComplianceSection({ subCategory, title, columns }) {
           className={`${inputCls} w-auto`}
         >
           <option value="">All statuses</option>
-          {['Pending', 'Upcoming', 'Due This Month', 'Overdue', 'Completed'].map((s) => (
+          {['Pending', 'Upcoming', 'Overdue', 'Completed'].map((s) => (
             <option key={s}>{s}</option>
           ))}
         </select>

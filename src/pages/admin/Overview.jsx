@@ -57,12 +57,6 @@ export default function Overview() {
             <StatCard label="Total" value={s.total || 0} icon={ClipboardList} accent="indigo" />
             <StatCard label="Pending" value={s.Pending || 0} icon={Clock} accent="slate" />
             <StatCard label="Upcoming" value={s.Upcoming || 0} icon={CalendarClock} accent="sky" />
-            <StatCard
-              label="Due This Month"
-              value={s['Due This Month'] || 0}
-              icon={CalendarClock}
-              accent="amber"
-            />
             <StatCard label="Overdue" value={s.Overdue || 0} icon={AlertTriangle} accent="rose" />
             <StatCard
               label="Completed"

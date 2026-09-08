@@ -101,7 +101,7 @@ export default function AssignTrack() {
           className={inputCls}
         >
           <option value="">All statuses</option>
-          {['Pending', 'Upcoming', 'Due This Month', 'Overdue', 'Completed'].map((s) => (
+          {['Pending', 'Upcoming',  'Overdue', 'Completed'].map((s) => (
             <option key={s}>{s}</option>
           ))}
         </select>
