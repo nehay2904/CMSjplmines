@@ -27,9 +27,9 @@ import Escalations from './pages/supervisor/Escalations';
 import UserLayout from './pages/user/UserLayout';
 import UserDashboard from './pages/user/UserDashboard';
 import MyCompliances from './pages/user/MyCompliances';
-import UsrReturns from './pages/user/Returns';
 import UsrNotices from './pages/user/Notices';
 import UsrRecords from './pages/user/Records';
+import ReturnsTracker from './pages/admin/ReturnsTracker';
 
 export default function App() {
   return (
@@ -54,6 +54,7 @@ export default function App() {
             <Route path="users" element={<Users />} />
             <Route path="mines" element={<Mines />} />
             <Route path="alerts" element={<AlertLogView />} />
+            <Route path="/returns" element={<ReturnsTracker />} />
           </Route>
 
           {/* SUPERVISOR */}
@@ -84,7 +85,6 @@ export default function App() {
           >
             <Route index element={<UserDashboard />} />
             <Route path="compliances" element={<MyCompliances />} />
-            <Route path="returns" element={<UsrReturns />} />
             <Route path="notices" element={<UsrNotices />} />
             <Route path="records" element={<UsrRecords />} />
           </Route>

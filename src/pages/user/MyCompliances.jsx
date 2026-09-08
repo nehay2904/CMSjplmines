@@ -1,38 +1,31 @@
 import { useEffect, useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { Search, CheckCircle2, Upload } from 'lucide-react';
+import { CheckCircle2, Upload, Repeat } from 'lucide-react';
 import API from '../../api/axios';
-import ComplianceTable from '../../components/ComplianceTable';
 import { Modal, Field, inputCls, Spinner, PageHeader, StatusBadge } from '../../components/ui';
 
 const fmt = (d) =>
   d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
 
-export default function MyCompliances() {
+const recurrenceLabel = { 1: 'Monthly', 3: 'Quarterly', 6: 'Half-yearly', 12: 'Annual' };
+
+export default function MyReturns() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
-  const [done, setDone] = useState(null); // compliance being completed
+  const [done, setDone] = useState(null);
   const [files, setFiles] = useState([]);
   const [driveLink, setDriveLink] = useState('');
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
-    const params = {};
-    if (search) params.search = search;
-    if (status) params.status = status;
-    API.get('/compliances', { params })
+    API.get('/compliances', { params: { subCategory: 'Return' } })
       .then((r) => setRows(r.data))
-      .catch(() => toast.error('Failed to load'))
+      .catch(() => toast.error('Failed to load returns'))
       .finally(() => setLoading(false));
-  }, [search, status]);
+  }, []);
 
-  useEffect(() => {
-    const t = setTimeout(load, 250);
-    return () => clearTimeout(t);
-  }, [load]);
+  useEffect(() => { load(); }, [load]);
 
   const openDone = (c) => {
     setDone(c);
@@ -47,10 +40,15 @@ export default function MyCompliances() {
       const fd = new FormData();
       files.forEach((f) => fd.append('proofs', f));
       if (driveLink) fd.append('driveLink', driveLink);
-      await API.patch(`/compliances/${done._id}/complete`, fd, {
+      const { data } = await API.patch(`/compliances/${done._id}/complete`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      toast.success('Marked complete');
+
+      if (data.recurrenceMonths) {
+        toast.success(`Done — next due date: ${fmt(data.dueDate)}`);
+      } else {
+        toast.success('Marked complete');
+      }
       setDone(null);
       load();
     } catch (err) {
@@ -62,65 +60,73 @@ export default function MyCompliances() {
 
   return (
     <>
-      <PageHeader
-        title="My Compliances"
-        subtitle="Everything assigned to you — upload proof to mark an item complete"
-      />
-
-      <div className="mb-4 flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
-          <input
-            placeholder="Search…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className={`${inputCls} pl-9`}
-          />
-        </div>
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className={`${inputCls} w-auto`}
-        >
-          <option value="">All statuses</option>
-          {['Pending', 'Upcoming', 'Due This Month', 'Overdue', 'Completed'].map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
-      </div>
+      <PageHeader title="My Compliances" subtitle="Returns assigned to you" />
 
       {loading ? (
         <Spinner />
       ) : (
-        <ComplianceTable
-          rows={rows}
-          columns={['id', 'title', 'category', 'due', 'status', 'proof']}
-          rowAction={(c) =>
-            c.status === 'Completed' ? (
-              <span className="text-xs text-emerald-600">Done</span>
-            ) : (
-              <button
-                onClick={() => openDone(c)}
-                className="flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div className="hidden grid-cols-[1fr_2.2fr_1fr_1fr_1fr_auto] gap-x-3 border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:grid">
+            <span>ID</span>
+            <span>Title</span>
+            <span>Due</span>
+            <span>Status</span>
+            <span>Recurrence</span>
+            <span />
+          </div>
+
+          {rows.length === 0 ? (
+            <p className="px-4 py-10 text-center text-sm text-slate-400">
+              No returns assigned to you.
+            </p>
+          ) : (
+            rows.map((c) => (
+              <div
+                key={c._id}
+                className="grid grid-cols-1 gap-2 border-b border-slate-100 px-4 py-3 last:border-0 sm:grid-cols-[1fr_2.2fr_1fr_1fr_1fr_auto] sm:items-center"
               >
-                <CheckCircle2 size={14} /> Complete
-              </button>
-            )
-          }
-        />
+                <div className="text-xs text-slate-400">{c.complianceId}</div>
+                <div className="text-sm font-medium text-slate-800">{c.title}</div>
+                <div className="text-sm text-slate-600">{fmt(c.dueDate)}</div>
+                <div><StatusBadge status={c.status} /></div>
+                <div className="text-xs text-slate-500">
+                  {c.recurrenceMonths ? (
+                    <span className="inline-flex items-center gap-1">
+                      <Repeat size={12} /> {recurrenceLabel[c.recurrenceMonths] || 'Recurring'}
+                    </span>
+                  ) : (
+                    'One-time'
+                  )}
+                </div>
+                <div>
+                  {c.status === 'Completed' ? (
+                    <span className="text-xs text-emerald-600">Done</span>
+                  ) : (
+                    <button
+                      onClick={() => openDone(c)}
+                      className="flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+                    >
+                      <CheckCircle2 size={14} /> Complete
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       )}
 
-      <Modal open={!!done} onClose={() => setDone(null)} title="Mark as complete">
+      <Modal open={!!done} onClose={() => setDone(null)} title="Complete return">
         {done && (
           <form onSubmit={submitDone} className="space-y-4">
             <div className="rounded-lg bg-slate-50 p-3 text-sm">
               <p className="font-medium text-slate-900">{done.title}</p>
-              <p className="text-slate-500">
-                {done.category} · due {fmt(done.dueDate)}
-              </p>
-              <div className="mt-2">
-                <StatusBadge status={done.status} />
-              </div>
+              <p className="text-slate-500">Due {fmt(done.dueDate)}</p>
+              {done.recurrenceMonths && (
+                <p className="mt-2 text-xs text-indigo-600">
+                  Recurring — completing this will roll the due date forward automatically.
+                </p>
+              )}
             </div>
 
             <Field label="Upload proof (optional, up to 5 files)">
