@@ -54,7 +54,7 @@ export default function App() {
             <Route path="users" element={<Users />} />
             <Route path="mines" element={<Mines />} />
             <Route path="alerts" element={<AlertLogView />} />
-            <Route path="/returns" element={<ReturnsTracker />} />
+            <Route path="returns" element={<ReturnsTracker />} />
           </Route>
 
           {/* SUPERVISOR */}

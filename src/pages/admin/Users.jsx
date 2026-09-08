@@ -22,7 +22,7 @@ const blank = {
   mine: '',
   dept: '',
   designation: '',
-  reportsTo: '',
+  reportsTo: [],
 };
 
 export default function Users() {
@@ -46,7 +46,7 @@ export default function Users() {
     API.get('/mines').then((r) => setMines(r.data)).catch(() => {});
   }, [load]);
 
-  // possible supervisors for the reportsTo dropdown (same mine, role supervisor)
+  // possible supervisors for the reportsTo checklist (optionally same mine)
   const supervisors = users.filter((u) => u.role === 'supervisor');
 
   const openNew = () => {
@@ -59,7 +59,7 @@ export default function Users() {
       ...u,
       password: '',
       mine: u.mine?._id || u.mine || '',
-      reportsTo: u.reportsTo?._id || u.reportsTo || '',
+      reportsTo: (u.reportsTo || []).map((r) => r._id || r),
     });
     setModal(u);
   };
@@ -71,9 +71,9 @@ export default function Users() {
       const payload = { ...form };
       if (payload.role === 'admin') {
         payload.mine = null;
-        payload.reportsTo = null;
+        payload.reportsTo = [];
       }
-      if (!payload.reportsTo) payload.reportsTo = null;
+      if (payload.role !== 'user') payload.reportsTo = [];
 
       if (modal === 'new') {
         await API.post('/auth/register', payload);
@@ -156,7 +156,9 @@ export default function Users() {
                       {u.mine?.name || (u.role === 'admin' ? 'All' : '—')}
                     </td>
                     <td className="px-4 py-3 text-slate-600">{u.dept || '—'}</td>
-                    <td className="px-4 py-3 text-slate-600">{u.reportsTo?.name || '—'}</td>
+                    <td className="px-4 py-3 text-slate-600">
+                      {(u.reportsTo || []).map((r) => r.name).join(', ') || '—'}
+                    </td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -301,13 +303,8 @@ export default function Users() {
                   />
                 </Field>
                 {form.role === 'user' && (
-                  <Field label="Reports to (Team Lead)">
-                    <select
-                      value={form.reportsTo}
-                      onChange={(e) => setForm({ ...form, reportsTo: e.target.value })}
-                      className={inputCls}
-                    >
-                      <option value="">—</option>
+                  <Field label="Reports to (Team Lead(s))">
+                    <div className="flex flex-wrap gap-3 rounded-lg border border-slate-300 px-3 py-2">
                       {supervisors
                         .filter(
                           (s) =>
@@ -315,11 +312,28 @@ export default function Users() {
                             String(s.mine?._id || s.mine) === String(form.mine)
                         )
                         .map((s) => (
-                          <option key={s._id} value={s._id}>
+                          <label
+                            key={s._id}
+                            className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={form.reportsTo.includes(s._id)}
+                              onChange={(e) => {
+                                const updated = e.target.checked
+                                  ? [...form.reportsTo, s._id]
+                                  : form.reportsTo.filter((id) => id !== s._id);
+                                setForm({ ...form, reportsTo: updated });
+                              }}
+                              className="rounded border-slate-300 text-indigo-600"
+                            />
                             {s.name}
-                          </option>
+                          </label>
                         ))}
-                    </select>
+                      {supervisors.length === 0 && (
+                        <span className="text-sm text-slate-400">No team leads yet</span>
+                      )}
+                    </div>
                   </Field>
                 )}
               </div>

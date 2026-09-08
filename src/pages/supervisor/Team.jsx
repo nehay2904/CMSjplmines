@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { User, ArrowUp, Users as UsersIcon } from 'lucide-react';
+import { ArrowUp, Users as UsersIcon } from 'lucide-react';
 import API from '../../api/axios';
 import { Spinner, PageHeader, EmptyState } from '../../components/ui';
 
@@ -50,13 +50,15 @@ export default function Team() {
     <>
       <PageHeader title="My Team" subtitle="Your reporting line and the officers under you" />
 
-      {data?.above && (
+      {!!data?.above?.length && (
         <div className="mb-8">
           <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
             <ArrowUp size={14} /> Reports to
           </p>
-          <div className="max-w-sm">
-            <PersonCard p={data.above} tone="indigo" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {data.above.map((p) => (
+              <PersonCard key={p._id} p={p} tone="indigo" />
+            ))}
           </div>
         </div>
       )}
