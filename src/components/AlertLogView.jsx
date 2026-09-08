@@ -59,7 +59,6 @@ export default function AlertLogView() {
     <>
       <PageHeader
         title="Alert Log"
-        subtitle="Every reminder and escalation email sent by the system"
         actions={
           <div className="flex items-center gap-2">
             <select

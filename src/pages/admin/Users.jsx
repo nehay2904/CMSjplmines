@@ -116,7 +116,6 @@ export default function Users() {
     <>
       <PageHeader
         title="Users & Team"
-        subtitle="Manage administrators, team leads and officers, and the reporting chain"
         actions={
           <button
             onClick={openNew}

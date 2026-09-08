@@ -4,7 +4,6 @@ export default function Notices() {
     <ComplianceSection
       subCategory="Notice"
       title="Notices"
-      subtitle="Statutory notices — open any row to read the conditions"
       columns={['id', 'title', 'category', 'assignee', 'due', 'status', 'proof']}
     />
   );

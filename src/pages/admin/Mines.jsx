@@ -67,7 +67,6 @@ export default function Mines() {
     <>
       <PageHeader
         title="Mines"
-        subtitle="The sites tracked in CompliTrack"
         actions={
           <button
             onClick={openNew}

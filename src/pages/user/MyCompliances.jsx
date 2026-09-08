@@ -60,7 +60,7 @@ export default function MyReturns() {
 
   return (
     <>
-      <PageHeader title="My Compliances" subtitle="Returns assigned to you" />
+      <PageHeader title="My Compliances"  />
 
       {loading ? (
         <Spinner />

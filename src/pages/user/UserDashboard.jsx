@@ -31,7 +31,6 @@ export default function UserDashboard() {
     <>
       <PageHeader
         title={`Hello, ${user?.name?.split(' ')[0] || ''}`}
-        subtitle="Here's what's on your plate"
       />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

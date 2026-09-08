@@ -48,7 +48,7 @@ export default function Team() {
 
   return (
     <>
-      <PageHeader title="My Team" subtitle="Your reporting line and the officers under you" />
+      <PageHeader title="My Team"  />
 
       {!!data?.above?.length && (
         <div className="mb-8">

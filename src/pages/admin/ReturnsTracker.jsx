@@ -61,7 +61,7 @@ export default function ReturnsTracker() {
 
   return (
     <>
-      <PageHeader title="Returns" subtitle="Recurring and one-time statutory returns" />
+      <PageHeader title="Returns"  />
 
       {loading ? (
         <Spinner />

@@ -476,7 +476,6 @@ export default function Compliances() {
     <>
       <PageHeader
         title="Compliances"
-        subtitle="Master register — create, edit and organise items per mine"
         actions={
           <button
             onClick={openNew}

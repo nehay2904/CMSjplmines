@@ -73,7 +73,6 @@ export default function AssignTrack() {
     <>
       <PageHeader
         title="Assign & Track"
-        subtitle="Assign one or more people to each compliance"
       />
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">

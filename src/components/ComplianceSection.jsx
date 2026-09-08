@@ -10,10 +10,10 @@ const fmt = (d) =>
 
 /**
  * subCategory: 'Notice' | 'Return' | 'Record' | undefined (all)
- * title, subtitle: page copy
+ * title, : page copy
  * columns: passed through to ComplianceTable
  */
-export default function ComplianceSection({ subCategory, title, subtitle, columns }) {
+export default function ComplianceSection({ subCategory, title, columns }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -39,7 +39,7 @@ export default function ComplianceSection({ subCategory, title, subtitle, column
 
   return (
     <>
-      <PageHeader title={title} subtitle={subtitle} />
+      <PageHeader title={title}  />
 
       <div className="mb-4 flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">

@@ -33,7 +33,6 @@ export default function Overview() {
     <>
       <PageHeader
         title="Overview"
-        subtitle="Compliance health across all mines"
         actions={
           <select
             value={mine}
