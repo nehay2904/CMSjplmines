@@ -131,32 +131,7 @@ function HistoryEntry({ entry }) {
         <p>Completed by: {entry.completedBy?.name || '—'}</p>
       </div>
 
-      {entry.driveLink && (
-        <a
-          href={entry.driveLink}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-2 inline-block text-sm text-indigo-600 hover:underline"
-        >
-          View document link
-        </a>
-      )}
-
-      {proofs.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-2">
-          {proofs.map((p, i) => (
-            <a
-              key={p.filePath || i}
-              href={fileUrl(p.filePath)}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
-            >
-              {p.fileName}
-            </a>
-          ))}
-        </div>
-      )}
+    
     </div>
   );
 }
@@ -394,7 +369,7 @@ export default function Compliances() {
   const [rows, setRows] = useState([]);
   const [mines, setMines] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ mine: '', category: '', status: '', search: '' });
+  const [filters, setFilters] = useState({ mine: '', category: '', subCategory: '', status: '', search: '' });
   const [modal, setModal] = useState(null); // null | 'new' | compliance object being edited
   const [form, setForm] = useState(BLANK_FORM);
   const [saving, setSaving] = useState(false);
@@ -486,7 +461,7 @@ export default function Compliances() {
         }
       />
 
-      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <div className="relative">
           <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
           <input
@@ -518,6 +493,17 @@ export default function Compliances() {
           <option value="">All categories</option>
           {CATEGORIES.map((c) => (
             <option key={c}>{c}</option>
+          ))}
+        </select>
+
+        <select
+          value={filters.subCategory}
+          onChange={(e) => setFilters({ ...filters, subCategory: e.target.value })}
+          className={inputCls}
+        >
+          <option value="">All types</option>
+          {SUBTYPES.map((s) => (
+            <option key={s}>{s}</option>
           ))}
         </select>
 

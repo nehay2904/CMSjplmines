@@ -9,11 +9,94 @@ import {
 import API from '../../api/axios';
 import { StatCard, Spinner, PageHeader, inputCls } from '../../components/ui';
 
+const DONUT_COLORS = ['#4f46e5', '#0ea5e9', '#f59e0b', '#10b981', '#ec4899', '#8b5cf6', '#64748b'];
+
+function CategoryDonut({ byCategory, total }) {
+  if (!byCategory?.length || !total) {
+    return <p className="text-sm text-slate-400">No data yet.</p>;
+  }
+
+  const size = 160;
+  const stroke = 22;
+  const r = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * r;
+
+  let offsetAcc = 0;
+  const segments = byCategory.map((row, i) => {
+    const pct = row.count / total;
+    const dash = pct * circumference;
+    const seg = {
+      id: row._id,
+      count: row.count,
+      color: DONUT_COLORS[i % DONUT_COLORS.length],
+      dasharray: `${dash} ${circumference - dash}`,
+      dashoffset: -offsetAcc,
+    };
+    offsetAcc += dash;
+    return seg;
+  });
+
+  return (
+    <div className="flex items-center gap-6">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90 flex-shrink-0">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#f1f5f9" strokeWidth={stroke} />
+        {segments.map((s) => (
+          <circle
+            key={s.id}
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            fill="none"
+            stroke={s.color}
+            strokeWidth={stroke}
+            strokeDasharray={s.dasharray}
+            strokeDashoffset={s.dashoffset}
+          />
+        ))}
+      </svg>
+      <div className="space-y-2">
+        {segments.map((s) => (
+          <div key={s.id} className="flex items-center gap-2 text-sm">
+            <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
+            <span className="text-slate-600">{s.id}</span>
+            <span className="font-medium text-slate-900">{s.count}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AdminActivity({ logs, loading }) {
+  if (loading) return <p className="text-sm text-slate-400">Loading…</p>;
+  if (!logs?.length) return <p className="text-sm text-slate-400">No recent activity.</p>;
+
+  return (
+    <div className="space-y-3">
+      {logs.map((log, i) => (
+        <div key={log._id || i} className="flex items-start justify-between gap-3 text-sm">
+          <div>
+            <p className="font-medium text-slate-900">{log.user || log.actor || 'Admin'}</p>
+            <p className="text-slate-500">
+              {log.action || 'Updated'} · {log.item || log.target || '—'}
+            </p>
+          </div>
+          <span className="whitespace-nowrap text-xs text-slate-400">
+            {log.when || (log.createdAt ? new Date(log.createdAt).toLocaleString() : '—')}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Overview() {
   const [mines, setMines] = useState([]);
   const [mine, setMine] = useState('');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activity, setActivity] = useState([]);
+  const [activityLoading, setActivityLoading] = useState(true);
 
   useEffect(() => {
     API.get('/mines').then((r) => setMines(r.data)).catch(() => {});
@@ -26,6 +109,14 @@ export default function Overview() {
       .catch(() => setData(null))
       .finally(() => setLoading(false));
   }, [mine]);
+
+  useEffect(() => {
+    setActivityLoading(true);
+    API.get('/audit-logs', { params: { limit: 5 } })
+      .then((r) => setActivity(r.data))
+      .catch(() => setActivity([]))
+      .finally(() => setActivityLoading(false));
+  }, []);
 
   const s = data?.stats || {};
 
@@ -66,31 +157,20 @@ export default function Overview() {
             />
           </div>
 
-          <div className="mt-8 rounded-xl border border-slate-200 bg-white p-6">
-            <h3 className="text-sm font-semibold text-slate-900">By regulatory category</h3>
-            {data?.byCategory?.length ? (
-              <div className="mt-4 space-y-3">
-                {data.byCategory.map((row) => {
-                  const pct = s.total ? Math.round((row.count / s.total) * 100) : 0;
-                  return (
-                    <div key={row._id}>
-                      <div className="mb-1 flex items-center justify-between text-sm">
-                        <span className="text-slate-600">{row._id}</span>
-                        <span className="font-medium text-slate-900">{row.count}</span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                        <div
-                          className="h-full rounded-full bg-indigo-500"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 bg-white p-6">
+              <h3 className="text-sm font-semibold text-slate-900">By regulatory category</h3>
+              <div className="mt-4">
+                <CategoryDonut byCategory={data?.byCategory} total={s.total} />
               </div>
-            ) : (
-              <p className="mt-4 text-sm text-slate-400">No data yet.</p>
-            )}
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-white p-6">
+              <h3 className="text-sm font-semibold text-slate-900">Recent admin activity</h3>
+              <div className="mt-4">
+                <AdminActivity logs={activity} loading={activityLoading} />
+              </div>
+            </div>
           </div>
         </>
       )}
