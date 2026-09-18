@@ -4,7 +4,6 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Login from './pages/Login';
-
 // admin
 import AdminLayout from './pages/admin/AdminLayout';
 import Overview from './pages/admin/Overview';
@@ -31,6 +30,8 @@ import UsrNotices from './pages/user/Notices';
 import UsrRecords from './pages/user/Records';
 import ReturnsTracker from './pages/admin/ReturnsTracker';
 
+
+import StatutoryLibrary from './pages/shared/StatutoryLibrary';
 export default function App() {
   return (
     <AuthProvider>
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="mines" element={<Mines />} />
             <Route path="alerts" element={<AlertLogView />} />
             <Route path="returns" element={<ReturnsTracker />} />
+            <Route path="statutory-library" element={<StatutoryLibrary />} />
           </Route>
 
           {/* SUPERVISOR */}
@@ -72,6 +74,7 @@ export default function App() {
             <Route path="notices" element={<SupNotices />} />
             <Route path="records" element={<SupRecords />} />
             <Route path="alerts" element={<Escalations />} />
+            <Route path="statutory-library" element={<StatutoryLibrary />} />
           </Route>
 
           {/* USER */}
@@ -87,6 +90,7 @@ export default function App() {
             <Route path="compliances" element={<MyCompliances />} />
             <Route path="notices" element={<UsrNotices />} />
             <Route path="records" element={<UsrRecords />} />
+            <Route path="statutory-library" element={<StatutoryLibrary />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />

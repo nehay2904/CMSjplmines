@@ -5,6 +5,7 @@ import {
   Users,
   Building2,
   Bell,
+  BookOpen
 } from 'lucide-react';
 import DashboardLayout from '../../components/DashboardLayout';
 
@@ -15,6 +16,7 @@ const nav = [
   { to: '/admin/users', label: 'Users & Team', icon: Users },
   { to: '/admin/mines', label: 'Mines', icon: Building2 },
   { to: '/admin/alerts', label: 'Alert Log', icon: Bell },
+    { to: '/admin/statutory-library', label: 'Statutory Library', icon: BookOpen }
 ];
 
 export default function AdminLayout() {
