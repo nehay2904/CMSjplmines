@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { CheckCircle2, Upload, Repeat } from 'lucide-react';
+import { CheckCircle2, Upload, Repeat, X, FileText } from 'lucide-react';
 import API from '../../api/axios';
 import { Modal, Field, inputCls, Spinner, PageHeader, StatusBadge } from '../../components/ui';
 
@@ -8,6 +8,10 @@ const fmt = (d) =>
   d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
 
 const recurrenceLabel = { 1: 'Monthly', 3: 'Quarterly', 6: 'Half-yearly', 12: 'Annual' };
+
+const MAX_FILES = 5;
+const MAX_SIZE_MB = 10;
+const ACCEPT = '.pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx';
 
 export default function MyReturns() {
   const [rows, setRows] = useState([]);
@@ -33,13 +37,34 @@ export default function MyReturns() {
     setDriveLink(c.driveLink || '');
   };
 
+  const addFiles = (e) => {
+    const picked = Array.from(e.target.files || []);
+    e.target.value = ''; // allow re-selecting the same file
+
+    const tooBig = picked.filter((f) => f.size > MAX_SIZE_MB * 1024 * 1024);
+    if (tooBig.length) toast.error(`${tooBig.map((f) => f.name).join(', ')} exceeds ${MAX_SIZE_MB} MB`);
+
+    const ok = picked.filter((f) => f.size <= MAX_SIZE_MB * 1024 * 1024);
+    setFiles((prev) => {
+      const merged = [...prev, ...ok].slice(0, MAX_FILES);
+      if (prev.length + ok.length > MAX_FILES) toast.error(`Max ${MAX_FILES} files`);
+      return merged;
+    });
+  };
+
+  const removeFile = (idx) => setFiles((prev) => prev.filter((_, i) => i !== idx));
+
   const submitDone = async (e) => {
     e.preventDefault();
+    if (files.length === 0) {
+      toast.error('Upload at least one proof document');
+      return;
+    }
     setSaving(true);
     try {
       const fd = new FormData();
       files.forEach((f) => fd.append('proofs', f));
-      if (driveLink) fd.append('driveLink', driveLink);
+      if (driveLink.trim()) fd.append('driveLink', driveLink.trim());
       const { data } = await API.patch(`/compliances/${done._id}/complete`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -60,7 +85,7 @@ export default function MyReturns() {
 
   return (
     <>
-      <PageHeader title="My Compliances"  />
+      <PageHeader title="My Compliances" />
 
       {loading ? (
         <Spinner />
@@ -129,20 +154,52 @@ export default function MyReturns() {
               )}
             </div>
 
-            <Field label="Upload proof (optional, up to 5 files)">
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-6 text-sm text-slate-500 hover:border-indigo-400 hover:text-indigo-600">
+            <Field label={<>Upload proof <span className="text-red-500">*</span> <span className="font-normal text-slate-400">(required, up to {MAX_FILES} files, {MAX_SIZE_MB} MB each)</span></>}>
+              <label
+                className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-6 text-sm hover:border-indigo-400 hover:text-indigo-600 ${
+                  files.length ? 'border-emerald-300 text-emerald-700' : 'border-red-300 text-slate-500'
+                }`}
+              >
                 <Upload size={18} />
-                {files.length ? `${files.length} file(s) selected` : 'Choose files'}
+                {files.length ? `${files.length} file(s) selected — add more` : 'Choose files'}
                 <input
                   type="file"
                   multiple
+                  accept={ACCEPT}
                   className="hidden"
-                  onChange={(e) => setFiles(Array.from(e.target.files).slice(0, 5))}
+                  onChange={addFiles}
+                  disabled={files.length >= MAX_FILES}
                 />
               </label>
+
+              {files.length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {files.map((f, i) => (
+                    <li
+                      key={`${f.name}-${i}`}
+                      className="flex items-center justify-between rounded-md bg-slate-50 px-2.5 py-1.5 text-xs text-slate-700"
+                    >
+                      <span className="flex min-w-0 items-center gap-1.5">
+                        <FileText size={13} className="shrink-0 text-slate-400" />
+                        <span className="truncate">{f.name}</span>
+                        <span className="shrink-0 text-slate-400">
+                          ({(f.size / 1024 / 1024).toFixed(2)} MB)
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(i)}
+                        className="ml-2 rounded p-0.5 text-slate-400 hover:bg-slate-200 hover:text-red-600"
+                      >
+                        <X size={13} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </Field>
 
-            <Field label="Or paste a document link">
+            <Field label="Document link (optional)">
               <input
                 value={driveLink}
                 onChange={(e) => setDriveLink(e.target.value)}
@@ -161,8 +218,8 @@ export default function MyReturns() {
               </button>
               <button
                 type="submit"
-                disabled={saving}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+                disabled={saving || files.length === 0}
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? 'Submitting…' : 'Confirm complete'}
               </button>

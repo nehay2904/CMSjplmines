@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { Plus, Pencil, Trash2, Search, History } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, History, FileText, ExternalLink } from 'lucide-react';
 import API from '../../api/axios';
 import ComplianceTable from '../../components/ComplianceTable';
 import {
@@ -115,8 +115,64 @@ function RowActions({ compliance, onHistory, onEdit, onDelete }) {
   );
 }
 
+function ProofList({ proofs = [], driveLink }) {
+  const hasProofs = proofs.length > 0;
+  const hasLink = !!driveLink;
+
+  if (!hasProofs && !hasLink) return (
+    <p className="mt-2 text-xs text-slate-400 italic">No proof uploaded</p>
+  );
+
+  return (
+    <div className="mt-3 space-y-1">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Proof</p>
+
+      {hasProofs && (
+        <ul className="space-y-1">
+          {proofs.map((p, i) => {
+            const name = p.fileName || p.filePath?.split('/').pop() || `Proof ${i + 1}`;
+            const url = p.filePath ? fileUrl(p.filePath) : null;
+            return (
+              <li key={i}>
+                {url ? (
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-50 hover:text-indigo-900 transition-colors"
+                  >
+                    <FileText size={12} className="shrink-0" />
+                    <span className="truncate max-w-[260px]">{name}</span>
+                    <ExternalLink size={10} className="shrink-0 opacity-60" />
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
+                    <FileText size={12} className="shrink-0" />
+                    {name}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {hasLink && (
+        <a
+          href={driveLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-50 hover:text-indigo-900 transition-colors"
+        >
+          <ExternalLink size={12} className="shrink-0" />
+          Document link
+        </a>
+      )}
+    </div>
+  );
+}
+
 function HistoryEntry({ entry }) {
-  const proofs = entry.proofs || [];
   return (
     <div className="rounded-lg border border-slate-200 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -131,7 +187,7 @@ function HistoryEntry({ entry }) {
         <p>Completed by: {entry.completedBy?.name || '—'}</p>
       </div>
 
-    
+      <ProofList proofs={entry.proofs} driveLink={entry.driveLink} />
     </div>
   );
 }

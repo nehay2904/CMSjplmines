@@ -5,7 +5,8 @@ export default function Records() {
       subCategory="Record"
       title="Records"
       subtitle="Registers and records you maintain on site"
-      columns={['id', 'title', 'category', 'freq', 'status', 'proof']}
+      columns={[ 'id', 'title' , 'freq']}
+
     />
   );
 }
